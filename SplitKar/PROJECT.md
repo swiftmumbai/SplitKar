@@ -3,10 +3,10 @@
 ## Executive Summary
 
 **Product Name:** SplitGlass  
-**Platform:** iOS 17+  
+**Platform:** iOS 17.0+  
 **Timeline:** 2 hours (4 developers)  
-**Tech Stack:** SwiftUI, SwiftData, iCloud  
-**Design Language:** Liquid Glass Morphism  
+**Tech Stack:** SwiftUI, SwiftData, iCloud (CloudKit)  
+**Design Language:** Liquid Glass Morphism with Native iOS Colors  
 
 **One-liner:** A gorgeous bill splitting app that makes splitting expenses with friends feel premium and effortless.
 
@@ -146,13 +146,14 @@ Splitting bills with friends is annoying:
 - Premium, modern, tactile
 - Feels like holding frosted glass
 - Smooth, fluid animations
-- Calm but energetic color palette
+- Native iOS colors with automatic light/dark mode
+- Respects system appearance preferences
 
 ### Components
 
 #### 1. GlassCard
-- Material: `.ultraThinMaterial`
-- Gradient overlay: white 25% → 5% opacity
+- Material: `.ultraThinMaterial` (automatically adapts to light/dark mode)
+- Gradient overlay: adapts based on system appearance
 - Corner radius: 20pt
 - Shadow: subtle, 10pt blur
 - Padding: 20pt
@@ -172,29 +173,38 @@ Splitting bills with friends is annoying:
 ### Color Palette
 
 **Background Gradient:**
-- Start: `#667eea` (blue-purple)
-- End: `#764ba2` (deep purple)
-- Direction: top-leading → bottom-trailing
+- Use native iOS gradient backgrounds
+- `Color(.systemBackground)` with overlay
+- Support light/dark mode automatically
 
-**Person Colors (Presets):**
-1. 🟣 Purple: `#9D50BB`
-2. 🔵 Blue: `#6E8EFB`
-3. 🟢 Green: `#4ECDC4`
-4. 🩷 Pink: `#FF6B9D`
-5. 🟠 Orange: `#FFA344`
-6. 🔴 Red: `#FF5370`
+**Person Colors (Presets - Native iOS Semantic Colors):**
+1. 🟣 Purple: `Color.purple`
+2. 🔵 Blue: `Color.blue`
+3. 🟢 Green: `Color.green`
+4. 🩷 Pink: `Color.pink`
+5. 🟠 Orange: `Color.orange`
+6. 🔴 Red: `Color.red`
 
 **Text:**
-- Primary: White 100%
-- Secondary: White 70%
-- Disabled: White 40%
+- Primary: `Color.primary` (adapts to light/dark mode)
+- Secondary: `Color.secondary`
+- Tertiary: `Color(.tertiaryLabel)`
+
+**UI Elements:**
+- Backgrounds: `Color(.systemBackground)`
+- Grouped backgrounds: `Color(.secondarySystemBackground)`
+- Separator: `Color(.separator)`
 
 ### Typography
 
-- **Display (amounts):** SF Pro Rounded Bold, 32pt
-- **Headline:** SF Pro Rounded Semibold, 20pt
-- **Body:** SF Pro, 17pt
-- **Caption:** SF Pro, 14pt
+Use native iOS system fonts with Dynamic Type support:
+
+- **Display (amounts):** `.system(.largeTitle, design: .rounded, weight: .bold)`
+- **Headline:** `.system(.title2, design: .rounded, weight: .semibold)`
+- **Body:** `.body` (native system font)
+- **Caption:** `.caption` (native system font)
+
+All text supports Dynamic Type for accessibility.
 
 ### Spacing Scale
 - xs: 4pt
@@ -229,7 +239,7 @@ Splitting bills with friends is annoying:
 Person
 ├── id: UUID
 ├── name: String
-├── colorHex: String
+├── colorName: String (stores "purple", "blue", "green", "pink", "orange", "red")
 └── expenses: [Expense] (relationship)
 
 Expense
@@ -240,10 +250,22 @@ Expense
 └── payer: Person (relationship)
 ```
 
+**Note:** Color names map to native SwiftUI colors for automatic light/dark mode support.
+
 **Container Configuration:**
-- Enable iCloud sync via CloudKit
+- iCloud sync enabled via CloudKit (automatic)
+- SwiftData handles sync automatically in background
+- Use `ModelConfiguration(cloudKitDatabase: .automatic)` for auto-sync
 - Automatic saves enabled
 - ModelContext injected via environment
+
+**Example:**
+```swift
+ModelContainer(
+    for: [Person.self, Expense.self],
+    configurations: ModelConfiguration(cloudKitDatabase: .automatic)
+)
+```
 
 **Data Operations:**
 - Use `@Query` for reactive UI updates
@@ -268,17 +290,24 @@ App
 - `@Environment(\.modelContext)` for mutations
 - No external state management needed
 
-### iCloud Sync
+### iCloud Sync (Automatic)
 
 **Setup:**
-1. Enable iCloud capability
+1. Enable iCloud capability in Xcode
 2. Add CloudKit container identifier
-3. Configure ModelContainer with cloud option
-4. SwiftData handles sync automatically
+3. Configure ModelContainer with `.automatic` cloud option
+4. SwiftData handles all sync operations automatically
+
+**How it Works:**
+- Data automatically syncs across user's devices
+- Works in background without user intervention
+- No manual sync buttons or triggers needed
+- Seamless experience across iPhone, iPad, etc.
 
 **Conflict Resolution:**
 - Last write wins (SwiftData default)
-- No manual merge needed for MVP
+- Automatic merge handled by SwiftData
+- No manual conflict resolution needed for MVP
 
 ---
 
@@ -318,6 +347,7 @@ App
 ❌ **Not Building:**
 - User accounts / authentication
 - Multi-group support (only one group per device)
+- Manual sync controls (iCloud syncs automatically)
 - Payment integration (Venmo, PayPal)
 - Receipt scanning / OCR
 - Tax/tip calculators
@@ -340,7 +370,8 @@ App
 ✅ View expense list with summary  
 ✅ Calculate settlements with minimum transactions  
 ✅ Data persists across app restarts  
-✅ iCloud sync works (if testable)  
+✅ iCloud automatic sync across devices (no manual intervention)  
+✅ Supports light and dark mode automatically  
 
 ### Non-Functional Requirements
 ✅ UI feels premium and polished  
@@ -360,8 +391,10 @@ App
 
 **Time:** 2 hours total  
 **Team:** 4 developers working in parallel  
-**Stack:** SwiftUI + SwiftData only (no external dependencies)  
-**Target:** iOS 17+ (iPhone only, no iPad optimization)
+**Stack:** SwiftUI + SwiftData + iCloud (no external dependencies)  
+**Target:** iOS 17.0+ (iPhone only, no iPad optimization)  
+**Design:** Native iOS colors with automatic light/dark mode support  
+**Sync:** Automatic iCloud sync via CloudKit (no manual sync UI)
 
 **Risk Mitigation:**
 - Developer 1 (Design System) finishes first - others depend on it
@@ -381,14 +414,15 @@ App
    - `GlassCard.swift` - Reusable glass card component
    - `GlassButton.swift` - Glass effect button with haptics
    - `GlassTextField.swift` - Custom text input with glass styling
-   - `ColorPalette.swift` - App color constants
-   - `Typography.swift` - Font styles and modifiers
+   - `ColorExtension.swift` - Utilities for person color mapping (native colors)
+   - `Typography.swift` - Font styles and modifiers (Dynamic Type support)
    - `Spacing.swift` - Spacing constants
 
 2. **SwiftData Models** (10 min)
    - `Person.swift` - Person model with SwiftData
    - `Expense.swift` - Expense model with relationships
-   - Configure ModelContainer in App file
+   - Configure ModelContainer in App file with iCloud sync enabled
+   - Enable iCloud capability and CloudKit container
 
 3. **Post-completion tasks:**
    - Act as git merge master
@@ -563,4 +597,23 @@ App
 ### Test Scenario 3: Data Persistence
 1. Add people and expenses
 2. Force quit app
-3. Relaunch
+3. Relaunch app
+4. Verify all data is still present
+
+**Pass Criteria:** Data persists across app restarts
+
+### Test Scenario 4: iCloud Automatic Sync
+1. Sign in with Apple ID on Device 1
+2. Add people and expenses on Device 1
+3. Wait 10-15 seconds for background sync
+4. Open app on Device 2 (signed in with same Apple ID)
+5. Verify all data appears automatically
+6. Add an expense on Device 2
+7. Wait 10-15 seconds
+8. Check Device 1 - new expense should appear
+
+**Pass Criteria:** Data syncs automatically across devices without manual intervention
+
+---
+
+**End of Document**

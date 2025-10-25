@@ -22,7 +22,9 @@ A SwiftUI-based iOS application for managing and splitting expenses.
 ## Tech Stack
 
 - **SwiftUI** - Modern declarative UI framework
-- **SwiftData** - Persistent data storage (iOS 17+)
+- **SwiftData** - Persistent data storage (iOS 17.0+)
+- **iCloud (CloudKit)** - Automatic sync across devices
+- **Native iOS Colors** - System colors with automatic light/dark mode
 - **MVVM Architecture** - Clean separation of concerns
 
 ## Project Setup
@@ -65,9 +67,9 @@ In Xcode:
    - A **physical iOS device** (iPhone/iPad running iOS 17.0+)
    - A **simulator** (iPhone 15, iPhone 14, etc.)
 
-### 4. Configure Signing (Required for Physical Devices)
+### 4. Configure Signing & iCloud (Required)
 
-If running on a physical device:
+**For all devices (simulator and physical):**
 
 1. Select the **SplitKar** project in the Project Navigator
 2. Select the **SplitKar** target
@@ -76,6 +78,15 @@ If running on a physical device:
 5. Select your **Team** from the dropdown
    - If you don't see a team, you'll need to add your Apple ID in Xcode:
      - **Xcode → Settings → Accounts → + → Apple ID**
+
+**Enable iCloud Sync:**
+
+6. In the same **Signing & Capabilities** tab, click **+ Capability**
+7. Add **iCloud**
+8. Check **CloudKit**
+9. The CloudKit container should be auto-configured
+
+**Note:** iCloud sync requires you to be signed in with an Apple ID on your device/simulator.
 
 ## Project Structure
 
@@ -120,15 +131,20 @@ The project follows **MVVM (Model-View-ViewModel)** architecture:
 ### Key Technologies
 
 - **SwiftData**: Used for persistent data storage with a declarative API
+- **iCloud Sync**: Automatic CloudKit sync across all user devices
 - **NavigationSplitView**: Adaptive navigation for iPhone and iPad
 - **ModelContext**: Environment object for managing SwiftData operations
+- **Native iOS Colors**: System colors that automatically adapt to light/dark mode
+- **Dynamic Type**: Full support for iOS accessibility features
 
 ## Development Guidelines
 
 - Minimum deployment target: **iOS 17.0**
+- Use **native iOS system colors** (Color.purple, Color.blue, etc.) for automatic light/dark mode
 - Follow **Swift's official style guidelines**
 - Use **value types** (structs) over reference types when possible
 - Avoid force unwrapping - use safe unwrapping (`if let`, `guard let`)
+- Support **Dynamic Type** for accessibility
 - Write **unit tests** for ViewModels and business logic
 
 ## Troubleshooting
@@ -147,6 +163,13 @@ The project follows **MVVM (Model-View-ViewModel)** architecture:
 - Restart Xcode
 - Reset the simulator: **Device → Erase All Content and Settings**
 - Check that you have sufficient disk space
+
+**iCloud Sync Not Working**
+- Ensure you're signed in with an Apple ID on the device/simulator
+- Check that iCloud capability is enabled in **Signing & Capabilities**
+- Verify CloudKit container is configured correctly
+- Go to **Settings → Apple ID → iCloud** and ensure iCloud Drive is enabled
+- For simulators, you may need to sign in through Settings app first
 
 ### Getting Help
 
