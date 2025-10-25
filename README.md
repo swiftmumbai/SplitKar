@@ -34,6 +34,16 @@ git clone https://github.com/Swift-Mumbai/SplitKar.git
 cd SplitKar
 ```
 
+**Note**: The project uses two main branches:
+- `main` - Stable production-ready code
+- `develop` - Active development branch
+
+To work on the latest features, switch to the develop branch:
+
+```bash
+git checkout develop
+```
+
 ### 2. Open the Project
 
 Open the project in Xcode:
@@ -150,10 +160,28 @@ If you encounter issues:
 Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Clone your fork and checkout the `develop` branch:
+   ```bash
+   git checkout develop
+   ```
+3. Create a branch from `develop`:
+   - For new features:
+     ```bash
+     git checkout -b feature/amazing-feature
+     ```
+   - For bug fixes:
+     ```bash
+     git checkout -b bugfix/fix-issue-description
+     ```
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request against the `develop` branch (not `main`)
+
+**Branch Strategy**:
+- `main` - Production-ready releases only
+- `develop` - Integration branch for features (base all PRs on this branch)
+- `feature/*` - New features and enhancements
+- `bugfix/*` - Bug fixes for issues found in development
 
 ## License
 
